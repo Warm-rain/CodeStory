@@ -1,0 +1,459 @@
+mqtt:
+  # 可选：启用 mqtt 服务器（默认值：如下所示）
+  enabled: True
+  # 必选：主机名
+  host: mqtt.server.com
+  # 可选：端口（默认值：如下所示）
+  port: 1883
+  # 可选：主题前缀（默认值：如下所示）
+  # 注意：如果您运行多个实例，必须是唯一的
+  topic_prefix: frigate
+  # 可选：客户端 ID（默认值：如下所示）
+  # 注意：如果您运行多个实例，必须是唯一的
+  client_id: frigate
+  # 可选：用户
+  # 注意：MQTT 用户可以通过以“FRIGATE_”开头的环境变量进行指定。
+  #       例如：user: '{FRIGATE_MQTT_USER}'
+  user: mqtt_user
+  # 可选：密码
+  # 注意：MQTT 密码可以通过以“FRIGATE_”开头的环境变量进行指定。
+  #       例如：password: '{FRIGATE_MQTT_PASSWORD}'
+  password: password
+  # 可选：使用自签名证书启用 TLS（默认值：无）
+  tls_ca_certs: /path/to/ca.crt
+  # 可选：使用自签名客户端证书的 tls_client_cert 和 tls_client_key
+  # 注意：证书不得设置密码保护，使用客户端证书时不要设置用户和密码
+  tls_client_cert: /path/to/client.crt
+  tls_client_key: /path/to/client.key
+  # 可选：启用时验证服务器证书中的服务器主机名（默认值：无）
+  tls_insecure: false
+  # 可选：发布统计信息的间隔（默认值：如下所示）
+  stats_interval: 60
+
+# 可选：检测器配置。默认为单个 CPU 检测器
+detectors:
+  # 必选：检测器的名称
+  detector_name:
+    # 必选：检测器的类型
+    # Frigate 提供的类型包括 'cpu'、'edgetpu' 和 'openvino'（默认值：如下所示）
+    # 还可以插入其他检测器类型。检测器可能需要额外的配置。
+    # 有关更多信息，请参阅检测器配置页面。
+    type: cpu
+
+# 可选：数据库配置
+database:
+  # 存储 SQLite DB 的路径（默认值：如下所示）
+  path: /media/frigate/frigate.db
+
+# 可选：模型修改
+model:
+  # 可选：模型的路径（默认值：基于检测器的自动选择）
+  path: /edgetpu_model.tflite
+  # 可选：标签映射文件的路径（默认值：如下所示）
+  labelmap_path: /labelmap.txt
+  # 必选：对象检测模型的输入宽度（默认值：如下所示）
+  width: 320
+  # 必选：对象检测模型的输入高度（默认值：如下所示）
+  height: 320
+  # 可选：对象检测模型的输入颜色空间
+  # 有效值为 rgb、bgr 或 yuv（默认值：如下所示）
+  input_pixel_format: rgb
+  # 可选：对象检测模型的输入张量格式
+  # 有效值为 nhwc 或 nchw（默认值：如下所示）
+  input_tensor: nhwc
+  # 可选：对象检测模型的类型，目前仅与 OpenVINO 检测器一起使用
+  # 有效值为 ssd、yolox、yolov5 或 yolov8（默认值：如下所示）
+  model_type: ssd
+  # 可选：标签名称修改。这些会合并到标准标签映射中。
+  labelmap:
+    2: vehicle
+
+# 可选：日志记录器详细设置
+logger:
+  # 可选：默认日志详细程度（默认值：如下所示）
+  default: info
+  # 可选：组件特定的日志记录器覆盖
+  logs:
+    frigate.event: debug
+
+# 可选：设置环境变量
+environment_vars:
+  EXAMPLE_VAR: value
+
+# 可选：鸟瞰图配置
+# 注意：可以在相机级别覆盖
+birdseye:
+  # 可选：启用鸟瞰图视图（默认值：如下所示）
+  enabled: True
+  # 可选：通过 RTSP 重新流送鸟瞰图（默认值：如下所示）
+  # 注意：启用此项将使鸟瞰图持续运行 24/7，这可能会略微增加 CPU 使用率。
+  restream: False
+  # 可选：输出分辨率的宽度（默认值：如下所示）
+  width: 1280
+  # 可选：输出分辨率的高度（默认值：如下所示）
+  height: 720
+  # 可选：mpeg1 配置的编码质量（默认值：如下所示）
+  # 1 是最高质量，31 是最低质量。较低质量的编码利用更少的 CPU 资源。
+  quality: 8
+  # 可选：视图模式。可用选项为：objects、motion 和 continuous
+  #   objects - 如果摄像机在过去的 30 秒内有跟踪的对象，则包括摄像机
+  #   motion - 如果在过去的 30 秒内检测到运动，则包括摄像机
+  #   continuous - 始终包括所有摄像机
+  mode: objects
+
+# 可选：ffmpeg 配置
+# 更多关于预设的信息请访问 https://
+docs.frigate.video/configuration/ffmpeg_presets
+ffmpeg:
+  # 可选：全局 ffmpeg 参数（默认值：如下所示）
+  global_args: -hide_banner -loglevel warning -threads 2
+  # 可选：全局硬件加速参数（默认值：如下所示）
+  # 注意：根据您的特定设备查看硬件加速文档
+  hwaccel_args: []
+  # 可选：全局输入参数（默认值：如下所示）
+  input_args: preset-rtsp-generic
+  # 可选：全局输出参数
+  output_args:
+    # 可选：检测流的输出参数（默认值：如下所示）
+    detect: -threads 2 -f rawvideo -pix_fmt yuv420p
+    # 可选：记录流的输出参数（默认值：如下所示）
+    record: preset-record-generic
+    # 可选：rtmp 流的输出参数（默认值：如下所示）
+    rtmp: preset-rtmp-generic
+
+# 可选：检测配置
+# 注意：可以在相机级别覆盖
+detect:
+  # 可选：输入中带有 detect 角色的帧的宽度（默认值：如下所示）
+  width: 1280
+  # 可选：输入中带有 detect 角色的帧的高度（默认值：如下所示）
+  height: 720
+  # 可选：摄像机是否启用检测（默认值：True）
+  enabled: True
+  # 可选：在 Frigate 认为对象消失之前的连续帧数（默认值：帧率的 5 倍）
+  max_disappeared: 25
+  # 可选：静止对象跟踪的配置
+  stationary:
+    # 可选：确认静止对象的频率（默认值：如下所示）
+    # 设置为 0 时，仅当检测到移动时，对象检测才会确认静止对象。
+    # 如果设置为 10，则对象检测会在每 10 帧上运行，以确认对象仍然存在。
+    interval: 0
+    # 可选：未发生位置更改的连续帧数，即将对象视为静止的帧数（默认值：帧率的 10 倍或 10 秒）
+    threshold: 50
+    # 可选：为跟踪静止对象定义最大帧数（默认值：未设置，无限跟踪）
+    # 这对于只应在有限时间内保持静止的对象的虚假阳性有所帮助。
+    # 也可以用于禁用静止对象跟踪。例如，您可能希望为人员设置一个值，但将车设置为默认值。
+    # 警告：设置这些值会覆盖默认行为并禁用静止对象跟踪。
+    #       几乎没有情况需要禁用它。不建议将这些值从示例配置复制到您的配置中，除非您知道需要它们。
+    max_frames:
+      # 可选：所有对象类型的默认值（默认值：未设置，无限跟踪）
+      default: 3000
+      # 可选：对象特定的值
+      objects:
+        person: 1000
+
+# 可选：对象配置
+# 注意：可以在相机级别覆盖
+objects:
+  # 可选：要跟踪的对象列表，来自 labelmap.txt（默认值：如下所示）
+  track:
+    - person
+  # 可选：在某些区域阻止检测所有对象类型的掩码（默认值：无掩码）
+  # 基于对象边界框的底部中心的检查。
+  # 注意：此掩码与下面的对象类型特定掩码相结合
+  mask: 0,0,1000,0,1000,200,0,200
+  # 可选：减少特定对象类型的误报的筛选器
+  filters:
+    person:
+      # 可选：检测到的对象的边界框的最小宽度*高度（默认值：0）
+      min_area: 5000
+      # 可选：检测到的对象的边界框的最大宽度*高度（
+      max_area: 100000
+      # 可选：检测到的对象的边界框的最小宽度/高度（默认值：0）
+      min_ratio: 0.5
+      # 可选：检测到的对象的边界框的最大宽度/高度（默认值：2.0）
+      max_ratio: 2.0
+      # 可选：启动跟踪的对象的最小分数（默认值：如下所示）
+      min_score: 0.5
+      # 可选：被跟踪对象的计算分数的最小小数百分比，以被视为真阳性（默认值：如下所示）
+      threshold: 0.7
+      # 可选：在某些区域阻止检测此对象类型的掩码（默认值：无掩码）
+      # 基于对象边界框的底部中心的检查
+      mask: 0,0,1000,0,1000,200,0,200
+
+# 可选：运动配置
+# 注意：可以在相机级别覆盖
+motion:
+  # 可选：用于确定像素是否足够不同以被计为运动的 cv2.threshold 阈值（默认值：如下所示）
+  # 提高此值将使运动检测变得不敏感，降低将使运动检测变得更敏感。
+  # 该值应介于 1 和 255 之间。
+  threshold: 25
+  # 可选：被计为运动的调整大小的运动图像中的最小像素大小（默认值：30）
+  # 增加此值将防止检测到较小的运动区域。减小将使运动检测对较小的运动对象更敏感。
+  # 根据经验：
+  #  - 15 - 高灵敏度
+  #  - 30 - 中等灵敏度
+  #  - 50 - 低灵敏度
+  contour_area: 30
+  # 可选：在多个帧上平均运动增量时传递给 cv2.accumulateWeighted 的 alpha 值（默认值：如下所示）
+  # 更高的值意味着当前帧更大程度地影响增量，一个雨滴可能被注册为运动。
+  # 太低，一个快速移动的人将不被检测为运动。
+  delta_alpha: 0.2
+  # 可选：在平均帧以确定背景时传递给 cv2.accumulateWeighted 的 alpha 值（默认值：如下所示）
+  # 更高的值意味着当前帧更大程度地影响平均帧，新对象将更快地被平均到背景中。
+  # 低值会导致像运动阴影这样的东西更长时间地被检测为运动。
+  # https://www.geeksforgeeks.org/background-subtraction-in-an-image-using-concept-of-running-average/
+  frame_alpha: 0.2
+  # 可选：调整后的运动帧的高度（默认值：50）
+  # 这是一个有效的模糊替代方案。较高的值会在降低 CPU 使用率的同时导致更细粒度的运动检测。
+  # 较低的值会导致更低的 CPU 使用率，但可能不会注册较小的变化作为运动。
+  frame_height: 50
+  # 可选：运动掩码
+  # 注意：有关创建掩码的详细信息，请参见文档
+  mask: 0,900,1080,900,1080,1920,0,1920
+  # 可选：改善对比度（默认值：如下所示）
+  # 启用动态对比度改进。这应该有助于改善夜间检测，但会使白天的运动检测更敏感。
+  improve_contrast: False
+  # 可选：从 ON 到 OFF 时更新相机运动通过 MQTT 的延迟（默认值：如下所示）。
+  mqtt_off_delay: 30
+
+# 可选：记录配置
+# 注意：可以在相机级别覆盖
+record:
+  # 可选：启用录制（默认值：如下所示）
+  # 警告：如果在配置中禁用录制，后续通过 UI 或 MQTT 启用录制将无效。
+  enabled: False
+  # 可选：清理运行之间的分钟数（默认值：如下所示）
+  # 这可以用于减少删除磁盘上的录制片段的频率，以便最小化 I/O
+  expire_interval: 60
+  # 可选：保留记录的设置
+  retain:
+    # 可选：保留记录的天数，不管是否有事件发生（默认值：如下所示）
+    # 注意：如果只想保留事件的录制，请将其设置为 0，并在下面的事件部分中定义保留。
+    days: 0
+    # 可选：保留模式。可用选项为：all、motion 和 active_objects
+    #   all - 保存所有录制段，无论是否有活动
+    #   motion - 保存所有具有任何检测到运动的录制段
+    #   active_objects - 保存所有带有活动/移动对象的录制段
+    # 注意：仅当上面的天数设置大于 0 时，此模式才适用
+    mode: all
+  # 可选：事件录制设置
+  events:
+    # 可选：在事件之前包括的秒数（默认
+    post_capture: 5
+    # 可选：要保存录制的对象（默认值：所有跟踪对象）
+    objects:
+      - person
+    # 可选：将录制限制为进入任何列出的区域的对象（默认值：无必需区域）
+    required_zones: []
+    # 可选：事件录制保留设置
+    retain:
+      # 必选：默认保留天数（默认值：如下所示）
+      default: 10
+      # 可选：保留模式（默认值：如下所示）
+      #   all - 保存所有事件的录制段，无论是否有活动
+      #   motion - 保存所有事件的录制段，具有任何检测到的运动
+      #   active_objects - 保存所有事件的录制段，带有活动/移动对象
+      #
+      # 注意：如果相机的保留模式比此处配置的模式更严格，这些段在此模式应用之前已经消失。
+      # 例如，如果相机的保留模式为“motion”，则没有运动的段将永远不会存储，因此在此处设置“all”模式不会使它们恢复。
+      mode: motion
+      # 可选：对象特定的保留天数
+      objects:
+        person: 15
+
+# 可选：jpg 快照的配置，写入每个事件的 clips 目录
+# 注意：可以在相机级别覆盖
+snapshots:
+  # 可选：启用在 /media/frigate/clips 写入 jpg 快照（默认值：如下所示）
+  enabled: False
+  # 可选：保存干净的 PNG 快照图像的副本（默认值：如下所示）
+  clean_copy: True
+  # 可选：在快照上打印时间戳（默认值：如下所示）
+  timestamp: False
+  # 可选：在快照上绘制边界框（默认值：如下所示）
+  bounding_box: False
+  # 可选：裁剪快照（默认值：如下所示）
+  crop: False
+  # 可选：将快照调整为的高度（默认值：原始大小）
+  height: 175
+  # 可选：将快照限制为进入任何列出的区域的对象（默认值：无必需区域）
+  required_zones: []
+  # 可选：摄像头覆盖的保留设置（默认值：全局值）
+  retain:
+    # 必选：默认保留天数（默认值：如下所示）
+    default: 10
+    # 可选：对象特定的保留天数
+    objects:
+      person: 15
+
+# 可选：RTMP 配置
+# 注意：RTMP 已弃用，推荐使用 restream
+# 注意：可以在相机级别覆盖
+rtmp:
+  # 可选：启用 RTMP 流（默认值：False）
+  enabled: False
+
+# 可选：重新流配置
+# 使用 https://github.com/AlexxIT/go2rtc（v1.2.0）
+go2rtc:
+
+# 可选：WebUI 的 jsmpeg 流配置
+live:
+  # 可选：设置用于 WebUI 中实时视图的流的名称（默认值：相机名称）
+  stream_name: camera_name
+  # 可选：设置 jsmpeg 流的高度（默认值：720）
+  # 这必须小于等于 detect 流的高度。较低的分辨率可以减少查看 jsmpeg 流所需的带宽。宽度会根据已知的纵横比进行计算。
+  height: 720
+  # 可选：设置 jsmpeg 流的编码质量（默认值：如下所示）
+  # 1 为最高质量，31 为最低。质量较低的流使用更少的 CPU 资源。
+  quality: 8
+
+# 可选：在-feed 时间戳样式配置
+# 注意：可以在相机级别覆盖
+timestamp_style:
+  # 可选：时间戳的位置（默认值：如下所示）
+  #           "tl"（左上角），
+  # "tr"（右上角），"bl"（左下角），"br"（右下角）
+  position: "tl"
+  # 可选：与 Python 包 "datetime" 一致的格式说明符（默认值：如下所示）
+  #           更多示例：
+  #             德国格式："%d.%m.%Y %H:%M:%S"
+  format: "%m/%d/%Y %H:%M:%S"
+  # 可选：字体颜色
+  color:
+    # 所有内容在指定颜色时都需要（默认值：如下所示）
+    red: 255
+    green: 255
+    blue: 255
+  # 可选：字体的线条粗细（默认值：如下所示）
+  thickness: 2
+  # 可选：字母效果（默认值：如下所示）
+  #           无效果
+  #           "solid"（以字体的反色绘制实心背景）
+  #           "shadow"（为字体添加阴影）
+  effect: None
+
+# 必选
+cameras:
+  # 必选：相机名称
+  back:
+    # 可选：启用/禁用相机（默认值：如下所示）。
+    # 如果禁用：配置将被使用，但没有实时流和捕获等。
+    # 事件/录像仍然可见。
+    enabled: True
+    # 必选：相机的 ffmpeg 设置
+    ffmpeg:
+      # 必选：相机的输入流列表。有关详细信息，请参见文档。
+      inputs:
+        # 必选：流的路径
+        # 注意：路径可能包括以 'FRIGATE_' 开头的环境变量，必须在{}中引用
+        - path: rtsp://viewer:{FRIGATE_RTSP_PASSWORD}@10.0.10.10:554/cam/realmonitor?channel=1&subtype=2
+          # 必选：为此流分配的角色列表。有效值为：detect、record、rtmp
+          # 注意：除了分配记录和 RTMP 角色外，
+          # 它们还必须在相机配置中启用。
+          roles:
+            - detect
+            - record
+            - rtmp
+          # 可选：流特定的全局参数（默认值：继承）
+          # global_args:
+          # 可选：流特定的硬件加速参数（默认值：继承）
+          # hwaccel_args:
+          # 可选：流特定的输入参数（默认值：继承）
+          # input_args:
+      # 可选：相机特定的全局参数（默认值：继承）
+      # global_args:
+      # 可选：相机特定的硬件加速参数（默认值：继承）
+      # hwaccel_args:
+      # 可选：相机特定的输入参数（默认值：继承）
+      # input_args:
+      # 可选：相机特定的输出参数（默认值：继承）
+      # output_args:
+
+    # 可选：在允许更高得分图像被新图像替换之前的超时时间（默认值：60）
+    best_image_timeout: 60
+
+    # 可选：此相机的区域配置
+    zones:
+      # 必选：区域的名称
+      # 注意：这必须与任何相机名称不同，但可以与另一个相机上的另一个区域匹配。
+      front_steps:
+        # 必选：定义区域多边形的 x、y 坐标列表。
+        # 注意：出现在区域中仅基于对象边界框的底部中心。
+        coordinates: 545,1077,747,939,788,805
+        # 可选：可以触发此区域的所有对象列表（默认值：所有跟踪对象）
+        objects:
+          - person
+        # 可选：区域级对象过滤器。
+        # 注意：全局和相机过滤器在上游应用。
+        filters:
+          person:
+            min_area: 5000
+            max_area: 100000
+            threshold: 0.7
+
+    # 可选：通过 MQTT 发布 jpg 快照的配置
+    mqtt:
+      # 可选：为相机启用通过 MQTT 发布快照（默认值：如下所示）
+      # 注意：仅适用于将图像数据发布到 MQTT via 'frigate/<camera_name>/<object_name>/snapshot'。
+      # 所有其他消息仍将发布。
+      enabled: True
+      # 可选：在快照上打印时间戳（默认值：如下所示）
+      timestamp: True
+      # 可选：在快照上绘制边界框（默认值：如下所示）
+      bounding_box: True
+      # 可选：裁剪快照（默认值：如下所示）
+      crop: True
+      # 可选：将快照调整为的高度（默认值：如下所示）
+      height: 270
+      # 可选：JPEG 编码质量（默认值：70）
+      quality: 70
+      # 可选：将 MQTT 消息限制为进入任何列出的区域的对象（默认值：无必需区域）
+      required_zones: []
+
+    # 可选：用于 GUI 中的相机处理配置。
+    ui:
+      # 可选：调整 UI 中相机的排序顺序。较大的数字会较晚出现（默认值：如下所示）
+      # 默认情况下，相机按字母顺序排序。
+      order: 0
+      # 可选：是否在 Frigate UI 中显示相机（默认值：如下所示）
+      dashboard: True
+
+# 可选
+ui:
+  # 可选：设置 UI 中相机的默认实时模式（默认值：如下所示
+  live_mode: mse
+  # 可选：设置在 UI 中使用的时区（默认值：使用浏览器本地时间）
+  # timezone: America/Denver
+  # 可选：使用实验性的录像/相机视图 UI（默认值：如下所示）
+  use_experimental: False
+  # 可选：设置使用的时间格式。
+  # 选项有 browser、12hour、24hour（默认值：如下所示）
+  time_format: browser
+  # 可选：为指定长度设置日期样式。
+  # 选项有：full、long、medium、short
+  # 示例：
+  #    short: 2/11/23
+  #    medium: Feb 11, 2023
+  #    full: Saturday, February 11, 2023
+  # （默认值：如下所示）。
+  date_style: short
+  # 可选：为指定长度设置时间样式。
+  # 选项有：full、long、medium、short
+  # 示例：
+  #    short: 8:14 PM
+  #    medium: 8:15:22 PM
+  #    full: 8:15:22 PM Mountain Standard Time
+  # （默认值：如下所示）。
+  time_style: medium
+  # 可选：手动覆盖日期/时间样式以使用 strftime 格式
+  # https://www.gnu.org/software/libc/manual/html_node/Formatting-Calendar-Time.html
+  # 可能的值如上所示（默认值：未设置）
+  strftime_fmt: "%Y/%m/%d %H:%M"
+
+# 可选：遥测配置
+telemetry:
+  # 可选：启用最新版本的出站检查（默认值：如下所示）
+  # 注意：如果使用 HomeAssistant 集成，禁用此功能将阻止其报告新版本
+  version_check: True
